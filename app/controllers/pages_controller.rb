@@ -4,6 +4,10 @@ require 'json'
 
 
 class PagesController < ApplicationController
+  before_action :set_user_data, only:  %i[signup login]
+  before_action :authenticate_user, except: %i[signup login index]
+  
+
   def index
   end
 
@@ -23,5 +27,32 @@ class PagesController < ApplicationController
   end
 
   def login
+    uri = URI("https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=#{Rails.application.credentials.firebase_api_key}")
+
+    response = Net::HTTP.post_form(uri,"email": @email, "password": @password)
+    data = JSON.parse(response.body)
+
+    if response.is_a?(Net::HTTPSuccess)
+      session[:user_id] = data['localId']
+      session[:data] =data
+      redirect_to home_path, notice: 'Logged in successfully!'
+    end
+
+  end
+
+  def logout
+    session.clear
+    redirect_to root_path, notice: 'Logged out successfully!'
+  end
+
+  private
+
+  def set_user_data
+    @email = params[:email]
+    @password = [:password]
+  end
+
+  def authenticate_user
+    redirect_to root_path, notice: 'You must be logged in to view this page!' unless current_user
   end
 end

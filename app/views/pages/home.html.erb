@@ -1,2 +1,6 @@
-<h1>Pages#home</h1>
-<p>Find me in app/views/pages/home.html.erb</p>
+<div class="container">
+  <div class="row my-5">
+    <h3><%= session[:data]["email"] %></h3>
+    <%= button_to "Logout", logout_path, class:"btn btn-danger"%>
+  </div>
+</div>
